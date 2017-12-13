@@ -1,6 +1,8 @@
-import twitter4j.Twitter;
-import twitter4j.TwitterFactory;
+import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static Twitter createInstance(){
@@ -15,10 +17,54 @@ public class Main {
         return tf.getInstance();
     }
 
-
-    public static void main(String[] args){
+    public static String createTweet(String tweet) throws TwitterException{
         Twitter twitter = createInstance();
+        Status status = twitter.updateStatus("Test with twitter 4j");
+        return status.getText();
+
+    }
+
+    public static List<User> getUserFriends(String username) throws TwitterException{
+        long cursor = -1;
+        Twitter twitter = createInstance();
+        List<User> users = new ArrayList<User>();
+        try{
+            users = twitter.getFriendsList(username, cursor, 200);
+        }
+        catch (TwitterException e){
+            e.printStackTrace();
+        }
+
+        return users;
+    }
+    public static void printUsernames(List<User> users){
+        for(User user: users){
+            System.out.println("\t\t" + user.getName());
+        }
+    }
+
+    public static void getFriendsOfFriends(String username) throws TwitterException{
+        List<User> users = getUserFriends(username);
+        System.out.print("\t\t" + username + "'s friends:");
+        printUsernames(users);
+    }
 
 
+
+    public  static void main(String[] args){
+        String test = "This is  a test of the twitter4j";
+        String result = "Bullshit";
+        String username = "realDonaldTrump";
+        try{
+            List<User> users = getUserFriends(username);
+            System.out.println(username + "'s friends:");
+            printUsernames(users);
+            for(User user: users){
+                getFriendsOfFriends(user.getScreenName());
+                Thread.sleep(2000);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }
